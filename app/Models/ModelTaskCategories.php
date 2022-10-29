@@ -24,7 +24,7 @@ class ModelTaskCategories extends Model
 
     protected $validationMessages = [
         'name' => [
-            'required' => 'name is required',
+            'required' => 'name harus disisi',
         ]
     ];
 }
