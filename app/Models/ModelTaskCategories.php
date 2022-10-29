@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use Config\Validation;
 
 class ModelTaskCategories extends Model
 {
@@ -15,5 +16,15 @@ class ModelTaskCategories extends Model
 
     protected $allowedFields = [
         'name'
+    ];
+
+    protected $validationRules = [
+        'name' => 'required',
+    ];
+
+    protected $validationMessages = [
+        'name' => [
+            'required' => 'name is required',
+        ]
     ];
 }
