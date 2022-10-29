@@ -5,6 +5,7 @@ namespace App\Controllers;
 use CodeIgniter\RESTful\ResourceController;
 use CodeIgniter\API\ResponseTrait;
 use App\Models\ModelTasks;
+use App\Models\ModelTaskCategories;
 
 class Tasks extends ResourceController
 {
@@ -12,6 +13,7 @@ class Tasks extends ResourceController
     public function __construct()
     {
         $this->ModelTasks = new ModelTasks();
+        $this->ModelTaskCategories = new ModelTaskCategories();
     }
 
     public function index()
@@ -22,28 +24,38 @@ class Tasks extends ResourceController
 
     public function show($id = false)
     {
-        $data = $this->ModelTaskCategories->find($id);
+        $data = $this->ModelTasks->find($id);
         if ($data) {
             return $this->respond($data, 200);
         } else {
-            return $this->failNotFound("Data not found for id $id");
+            return $this->failNotFound("Data tidak ditemukan untuk id $id");
         }
     }
 
     public function create()
     {
+        $categoryId = $this->request->getVar('category_id');
+        $isDataExists = $this->ModelTaskCategories->find($categoryId);
+        if (!$isDataExists) {
+            return $this->failNotFound("Data category_id $categoryId tidak ditemukan");
+        }
         $data = [
-            'name' => $this->request->getVar('name')
+            'category_id' => $categoryId,
+            'title' => $this->request->getVar('title'),
+            'description' => $this->request->getVar('description'),
+            'start_date' => $this->request->getVar('start_date'),
+            'finish_date' => $this->request->getVar('finish_date'),
+            'status' => $this->request->getVar('status'),
         ];
         // $data = $this->request->getJSON();
-        if (!$this->ModelTaskCategories->save($data)) {
-            return $this->fail($this->ModelTaskCategories->errors());
+        if (!$this->ModelTasks->save($data)) {
+            return $this->fail($this->ModelTasks->errors());
         }
         $response = [
-            'status' => '201',
+            'status' => '200',
             'error' => 'null',
             'messages' => [
-                'success' => 'Berhasil input data task categories'
+                'success' => 'Berhasil input data tasks'
             ]
         ];
         return $this->respond($response);
@@ -51,24 +63,34 @@ class Tasks extends ResourceController
 
     public function update($id = false)
     {
-        $data = [
-            'id' => $id,
-            'name' => $this->request->getVar('name')
-        ];
-
-        $isDataExists = $this->ModelTaskCategories->find($id);
+        $isDataExists = $this->ModelTasks->find($id);
         if (!$isDataExists) {
-            return $this->failNotFound("Data not found for id $id");
+            return $this->failNotFound("Data tidak ditemukan untuk id $id");
+        }
+        $categoryId = $this->request->getVar('category_id');
+        $isDataExists = $this->ModelTaskCategories->find($categoryId);
+        if (!$isDataExists) {
+            return $this->failNotFound("Data category_id $categoryId tidak ditemukan");
         }
 
-        if (!$this->ModelTaskCategories->save($data)) {
-            return $this->fail($this->ModelTaskCategories->errors());
+        $data = [
+            'id' => $id,
+            'category_id' => $categoryId,
+            'title' => $this->request->getVar('title'),
+            'description' => $this->request->getVar('description'),
+            'start_date' => $this->request->getVar('start_date'),
+            'finish_date' => $this->request->getVar('finish_date'),
+            'status' => $this->request->getVar('status'),
+        ];
+
+        if (!$this->ModelTasks->save($data)) {
+            return $this->fail($this->ModelTasks->errors());
         }
         $response = [
             'status' => '200',
             'error' => 'null',
             'messages' => [
-                'success' => "Berhasil update data dengan id $id task categories"
+                'success' => "Berhasil update data dengan id task $id"
             ]
         ];
         return $this->respond($response);
@@ -76,11 +98,11 @@ class Tasks extends ResourceController
 
     public function delete($id = false)
     {
-        $isDataExists = $this->ModelTaskCategories->find($id);
+        $isDataExists = $this->ModelTasks->find($id);
         if (!$isDataExists) {
-            return $this->failNotFound("Data not found for id $id");
+            return $this->failNotFound("Data tidak ditemukan untuk id $id");
         }
-        $this->ModelTaskCategories->delete($id);
+        $this->ModelTasks->delete($id);
         $response = [
             'status' => '200',
             'error' => 'null',
